@@ -1,10 +1,22 @@
 <template>
-  <nav>
-    <router-link to="/">Home</router-link> |
-    <router-link to="/about">About</router-link>
-  </nav>
-  <router-view/>
+  <Navbar />
+  <router-view />
+  <FooterPage />
 </template>
+
+<script lang="ts">
+import { defineComponent } from 'vue';
+import Navbar from './components/Navbar.vue';
+import FooterPage from './components/Footer.vue';
+
+export default defineComponent({
+  name: 'App',
+  components: {
+    Navbar,
+    FooterPage
+  }
+});
+</script>
 
 <style lang="scss">
 #app {
