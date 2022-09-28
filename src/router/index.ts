@@ -20,6 +20,7 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/posts',
     name: 'posts',
+    beforeEnter: Guard.authHeader,
     component: PostsView
   }
 ]

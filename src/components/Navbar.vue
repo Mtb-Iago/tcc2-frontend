@@ -30,7 +30,7 @@ export default defineComponent({
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
 .nav {
-  background-color: rgb(194, 194, 194);
+  background-color: #17a2b8;
   justify-content: end;
 }
 
@@ -38,14 +38,14 @@ nav a,
 #login {
   padding: 0px 10px;
   font-size: 15pt;
-  color: #42b983;
+  color: #ffffff !important;
   cursor: pointer;
 }
 
 nav a:hover,
 nav #login:hover {
   transition: .4s;
-  color: #1b6a47;
+  color: #337b00 !important;
   text-decoration: none;
 
 }

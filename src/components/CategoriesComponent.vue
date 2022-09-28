@@ -1,24 +1,36 @@
 <template>
-  <h6 class="mb-5">{{ msg }}</h6>
-  <div class="hello d-flex col-12">
-    <div class="col-12 d-flex flex-wrap m-auto justify-content-center align-items-center">
-      <div class="row d-flex justify-content-center mb-5"
-         v-for="(categorie, index) in categories.data"
-         :key="index"
-         >
-        <div class="col-md-10 col-sm-6 item">
-          <div class="card item-card card-block">
-            <h4 class="card-title text-right">
-              <i class="fa-solid fa-arrow-right"></i>
-            </h4>
-            <span>{{categorie['name_category']}}</span>
-            <h5 class="item-card-title mt-3 mb-3">Sierra Web Development • Owner</h5>
-            <p class="card-text">This is a company that builds websites, web apps and e-commerce solutions.</p>
-            <small class="text-muted">{{dateTime(categorie['created_at'])}}</small>
+  <h6 class="mb-5 text-muted">{{ msg }}</h6>
+  <div class="content mb-5 col-12">
+    <div class="d-flex justify-content-end col-10 m-auto align-items-center" id="button_new_category">
+      <button class="btn-new-category btn btn-info btn-lg" v-on:click="showModalCategory" :disabled='isDisabled'>Nova Categoria</button>
+      <Teleport to="body">
+        <!-- use the modal component, pass in the prop -->
+        <ModalCategorie :showCategoryModalOpen="showCategory" @close="showCategory = false " />
+      </Teleport>
+      <input class="form-control col-2 ml-sm-2" type="text" v-model="search" placeholder="Buscar Categoria..." />
+    </div>
+
+
+    <div class="hello d-flex col-12 mt-5">
+      <div class="col-12 d-flex flex-wrap m-auto justify-content-center align-items-center">
+        <div class="row d-flex justify-content-center mb-5" v-for="(categorie, index) in filteredItems" :key="index">
+          <div class="col-md-10 col-sm-6 item">
+            <div class="card item-card card-block">
+              <h4 class="card-title text-right">
+                <i class="fa-solid fa-arrow-right"></i>
+              </h4>
+              <h2 class="text-bolder">{{categorie['name_category']}}</h2>
+              <h5 class="item-card-title mt-3 mb-3">{{categorie['author']}} • Owner</h5>
+              <p class="card-text">{{categorie['description']}}</p>
+              <small class="text-muted">{{dateTime(categorie['created_at'])}}</small>
+            </div>
           </div>
         </div>
-      </div>
 
+      </div>
+    </div>
+    <div class="alert alert-danger col-4 m-auto" role="alert" v-if="!categories.status">
+      Não há categorias cadastradas...
     </div>
   </div>
 
@@ -28,80 +40,128 @@
 import { defineComponent } from 'vue';
 import moment from 'moment';
 
+import { FilterData, ResponseApi } from '../interfaces/CategoriesInterface'
 
-import Guard from '@/services/auth-header' 
+import Cookie from 'js-cookie'
 import Categories from '@/services/categories'
+import ModalCategorie from './ModalCategorie.vue';
 
 export default defineComponent({
-  name: 'CategoriesComponent',
+  name: "CategoriesComponent",
   props: {
     msg: String,
   },
+  components: { ModalCategorie },
   data() {
     return {
-      data: {
-        token_login: Guard.get_token
-      },
+      showCategory: false,
+      disabled: false,
+      token_login: Cookie.get('_tcc2_token'),
       categories: {
         status: null,
-        data: {},
+        data: [],
         message: ""
-      }
-    }
+      },
+      search: "",
+      data: {
+        author: '',
+        name_category: '',
+        description: '',
+      },
+      request: {
+        status_register: false,
+        message: '',
+        data_return: []
+      },
+    };
   },
-  mounted() {
-   Categories.listCategories().then(response => {
-
-      this.categories.status = response.status
-      this.categories.data = response.data
-      this.categories.message = response.message
-
-      console.log(this.categories.data);
-      
-      // return response.data
+  computed: {
+    filteredItems() {
+      return this.categories.data.filter((val: FilterData) => {
+        return val.name_category.toLowerCase().includes(this.search.toLowerCase());
+      });
+    },
+    isDisabled(){
+      return !this.token_login ? true : false 
+    }
+    
+  },
+  created() {
+    Categories.listCategories().then((response: ResponseApi) => {
+      this.categories.status = response.status;
+      this.categories.data = response.data;
+      this.categories.message = response.message;
     }).catch(error => {
       console.log(error);
-    })
+    });
   },
-
   methods: {
     async listCategories() {
+      const response = await fetch("http://localhost:8001/api/category/list-category/", {
+        method: "POST",
+        mode: "cors",
+        headers: {
+          "Authorization": `Bearer ${this.token_login}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(this.data) // body data type must match "Content-Type" header
+      }).then((res) => {
+        console.log(res.json());
+        return res.json();
+      }).catch((error) => {
+        console.log(error.data.message);
+      });
+      // this.categories = response
+      // console.log(this.categories);
+      return response;
+    },
+    dateTime(value: string) {
+      return moment(value).format("DD-MM-YYYY H:m:s");
+    },
+    showModalCategory() {
+      this.showCategory = !this.showCategory
+    }
+  },
+  async insert_category() {
+      const data = {
+        author: this.data.author,
+        name_category: this.data.name_category,
+        description: this.data.description,
+      };
+
       const response = await fetch(
-        "http://localhost:8001/api/category/list-category/",
+        "http://localhost:8001/api/category/insert-category/",
         {
           method: 'POST', // *GET, POST, PUT, DELETE, etc.
           mode: 'cors', // no-cors, *cors, same-origin
           headers: {
-            'Authorization': `Bearer ${this.data.token_login}`,
-            'Content-Type': 'application/json',
+            "Authorization": `Bearer ${this.token_login}`,
+            'Content-Type': 'application/json'
           },
-          body: JSON.stringify(this.data) // body data type must match "Content-Type" header
+          body: JSON.stringify(data) // body data type must match "Content-Type" header
         }
       ).then((res) => {
-        console.log(res.json());
-        
         return res.json()
       }).catch((error) => {
         console.log(error.data.message);
       })
 
-      // this.categories = response
+      this.request.status_register = response.status
+      this.request.data_return = response.data
+      this.request.message = response.message
+    },
 
-      // console.log(this.categories);
-      
-      return response
-    },
-    dateTime(value: string) {
-      return moment(value).format('DD-MM-YYYY H:m:s');
-    },
-  }
 });
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
-  h6 {}
+.content {
+  min-height: 80vh;
+}
+
 .item {
+  margin: 0 20px;
   padding-left: 5px;
   padding-right: 5px;
 }
@@ -128,6 +188,7 @@ export default defineComponent({
 }
 
 .card {
+  min-width: 480px;
   padding: 15px;
 }
 
@@ -137,6 +198,7 @@ export default defineComponent({
 }
 
 .card-text {
+  min-width: 480px;
   height: 80px;
 }
 
