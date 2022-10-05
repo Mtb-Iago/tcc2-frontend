@@ -2,8 +2,9 @@
   <div class="nav col-12 d-flex bg-#000">
     <nav class="col-12 m-auto d-flex">
       <router-link to="/">Categorias</router-link>
-      <router-link to="/posts">Posts</router-link>
-      <a id="login" @click="showModal = true">Login</a>
+      <!-- <router-link to="/posts">Posts</router-link> -->
+      <a v-if="!token_login" id="login" @click="showModal = true">Login</a>
+      <a v-if="token_login" id="login" @click="logout">Sair</a>
     </nav>
     <Teleport to="body">
     <!-- use the modal component, pass in the prop -->
@@ -15,15 +16,32 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import ModalLogin from './ModalLogin.vue';
+import Cookie from 'js-cookie'
+import router from '@/router';
 
 export default defineComponent({
   name: "NavBar",
   components: { ModalLogin },
   data() {
     return {
-      showModal: false
+      showModal: false,
+      token_login: Cookie.get('_tcc2_token'),
+    }
+  },
+  watch: {
+    logout(token) {
+      console.log(token)
+      this.token_login = ""
+    }
+  },
+  methods: {
+    logout() {
+      Cookie.remove('_tcc2_token')
+      this.token_login = ""
+      router.push('/')
     }
   }
+  
 });
 </script>
 

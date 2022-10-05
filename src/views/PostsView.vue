@@ -1,25 +1,242 @@
 <template>
   <div class="posts">
-    <h1>Login</h1>
+    <div class="img col-3 d-flex m-auto justify-content-center">
+      <img width="400" height="400" alt="Vue logo" src="../assets/logo.png">
+    </div>
+    <h1>POSTS</h1>
+    <input class="form-control col-4 text-center d-flex justify-content-center m-auto searchButton" type="text"
+      v-model="search" placeholder="Buscar Posts..." />
+    <div class="hello d-flex col-12 mt-5">
+      <div class="col-12 d-flex flex-wrap m-auto justify-content-center align-items-center">
+        <div class="row d-flex justify-content-center mb-5" v-for="(posts, index) in filteredItemsPost" :key="index">
+          <div class="col-md-10 col-sm-6 item">
+            <div class="card item-card card-block">
+
+              <h2 class="text-bolder">{{posts['title_post']}}</h2>
+              <p class="card-text">{{posts['post']}}</p>
+              <div class="d-flex justify-content-center m-auto" v-if="posts['url_archives']">
+                <img width="300" :src="posts['url_archives'][0]['url_photos']" />
+              </div>
+              <hr>
+              <div class="d-flex justify-content-between align-items-center">
+                <h5 class="item-card-title mt-3 mb-3">Autor: {{posts['name_user']}}</h5>
+                <small class="text-muted">{{dateTime(posts['created_at'])}}</small>
+              </div>
+              <div class="d-flex text-end" v-for="(tag, index) in posts['tags_post']" :key="index">
+                <small class="text-muted">TAGS: [{{tag['tag']}}]</small>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    <div class="alert alert-danger col-4 m-auto" role="alert" v-if="!posts.status || !posts.data.length">
+      Não há Posts cadastradas...
+    </div>
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue';
+import Cookie from 'js-cookie'
+import moment from 'moment';
+import Posts from '@/services/posts'
+import { FilterDataPosts, ResponseApi } from '@/interfaces/PostsInterface';
 
 export default defineComponent({
   name: 'PostsView',
   components: {
   },
+  el: '.carousel',
+  data() {
+
+    return {
+      showPosts: false,
+      disabled: false,
+      token_login: Cookie.get('_tcc2_token'),
+      id_category: this.$route.query.categoria,
+      posts: {
+        status: null,
+        data: [],
+        message: ""
+      },
+      search: "",
+      data: {
+        author: '',
+        name_category: '',
+        description: '',
+      },
+      request: {
+        status_register: false,
+        message: '',
+        data_return: []
+      },
+      images: [],
+      nextNum: 10
+    }
+  },
+
+  computed: {
+    filteredItemsPost(): never[] {
+      return this.posts.data.filter((val: FilterDataPosts) => {
+        return val.title_post.toLowerCase().includes(this.search.toLowerCase());
+      });
+    },
+  },
+  created() {
+    Posts.listPosts(this.id_category).then((response: ResponseApi) => {
+
+      this.posts.status = response.status;
+      this.posts.data = response.data;
+      this.posts.message = response.message;
+
+    }).catch(error => {
+      console.log(error);
+    });
+  },
+  methods: {
+    dateTime(value: string) {
+      return moment(value).format("DD-MM-YYYY H:m:s");
+    },
+    showModalCategory() {
+      this.showPosts = !this.showPosts
+    }
+  },
+  // async insert_category() {
+  //   const data = {
+  //     author: this.data.author,
+  //     name_category: this.data.name_category,
+  //     description: this.data.description,
+  //   };
+
+  //   const response = await fetch(
+  //     "http://localhost:8001/api/category/insert-category/",
+  //     {
+  //       method: 'POST', // *GET, POST, PUT, DELETE, etc.
+  //       mode: 'cors', // no-cors, *cors, same-origin
+  //       headers: {
+  //         "Authorization": `Bearer ${this.token_login}`,
+  //         'Content-Type': 'application/json'
+  //       },
+  //       body: JSON.stringify(data) // body data type must match "Content-Type" header
+  //     }
+  //   ).then((res) => {
+  //     return res.json()
+  //   }).catch((error) => {
+  //     console.log(error.data.message);
+  //   })
+
+  //   this.request.status_register = response.status
+  //   this.request.data_return = response.data
+  //   this.request.message = response.message
+  // },
+
+
+
+
 });
 </script>
 
 <style scoped>
-  .posts {
-    min-height: 98vh;
-    background-color: aquamarine;
-  }
-  h1{
-    color: black;
-  }
+.posts {
+  min-height: 98vh;
+  background-color: rgb(245, 245, 245);
+}
+
+h1 {
+  color: black;
+  margin-top: -100px;
+}
+
+.content {
+  min-height: 80vh;
+}
+
+.img {
+  margin-top: -75px !important;
+}
+
+.searchButton {
+  cursor: auto;
+}
+
+.searchButton:hover {
+  transition: .4s;
+  opacity: 0.8;
+}
+
+.item {
+  margin: 0 20px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+.item-card {
+  transition: 0.5s;
+  cursor: pointer;
+}
+
+.item-card-title {
+  font-size: 15px;
+  transition: 1s;
+  cursor: pointer;
+}
+
+.card-title i {
+  color: #42b983 !important;
+}
+
+.card-title i:hover {
+  transform: scale(1.25) rotate(100deg);
+  color: #083b24;
+
+}
+
+.card {
+  text-align: justify;
+  min-height: 450px;
+  max-width: 850px;
+  min-width: 480px;
+  padding: 15px;
+}
+
+.card:hover {
+  transform: scale(1.05);
+  box-shadow: 10px 10px 15px rgba(0, 0, 0, 0.3);
+}
+
+.card-text {
+  min-width: 480px;
+  min-height: 100px;
+}
+
+.card::before,
+.card::after {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  transform: scale3d(0, 0, 1);
+  transition: transform .3s ease-out 0s;
+  background: rgba(255, 255, 255, 0.1);
+  content: '';
+  pointer-events: none;
+}
+
+.card::before {
+  transform-origin: left top;
+}
+
+.card::after {
+  transform-origin: right bottom;
+}
+
+.card:hover::before,
+.card:hover::after,
+.card:focus::before,
+.card:focus::after {
+  transform: scale3d(1, 1, 1);
+}
 </style>

@@ -16,8 +16,8 @@
         <div class="row d-flex justify-content-center mb-5" v-for="(categorie, index) in filteredItems" :key="index">
           <div class="col-md-10 col-sm-6 item">
             <div class="card item-card card-block">
-              <h4 class="card-title text-right">
-                <i class="fa-solid fa-arrow-right"></i>
+              <h4 class="card-title text-right" >
+                <router-link :to="{ name: 'posts', query:{categoria: categorie['id_category']}}"><i class="fa-solid fa-arrow-right"></i></router-link>
               </h4>
               <h2 class="text-bolder">{{categorie['name_category']}}</h2>
               <h5 class="item-card-title mt-3 mb-3">{{categorie['author']}} • Owner</h5>

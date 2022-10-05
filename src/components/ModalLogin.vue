@@ -32,8 +32,11 @@
                     placeholder="Digite sua senha..">
                 </div>
 
-                <div class="form-group text-center">
+                <div class="form-group text-center" v-if="request.request_error || request.request_success ">
                   <div class="alert alert-danger" role="alert" v-if="request.request_error">
+                    {{request.msg_response}}
+                  </div>
+                  <div class="alert alert-success" role="alert" v-if="request.request_success">
                     {{request.msg_response}}
                   </div>
                 </div>
@@ -70,9 +73,8 @@
 </template>
 <script lang="ts">
   import Cookie from 'js-cookie'
-  import Guard from '@/services/auth-header' 
-import { defineComponent } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+  import { defineComponent } from 'vue'
+
 
 
 interface ResponseApi {
@@ -87,7 +89,8 @@ interface ResponseApi {
 export default defineComponent({
   name: "ModaLogin",
   props: {
-    show: Boolean
+    show: Boolean,
+    showCategory: Boolean
   },
   data() {
     return {
@@ -144,9 +147,6 @@ export default defineComponent({
       }
     },
     send_response(response: ResponseApi) {
-      
-
-
 
       if(!response.status) {
         this.request.msg_response = response.message
@@ -154,12 +154,18 @@ export default defineComponent({
        
       } else {
         this.request.request_error = false
+        this.request.request_success = true
+        this.request.msg_response = "Login efetuado com sucesso..."
+         
       }
       setTimeout(() => {
         this.request.request_error = false
-
+        this.request.request_success = false
+        this.request.msg_response = ""
         Cookie.set('_tcc2_token', response.data.token)
-      }, 5000);
+        this.$emit('close')
+        
+      }, 1000);
     }
   }
 })

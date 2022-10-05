@@ -1,6 +1,6 @@
 <template>
   <Transition name="ModalCategory">
-    <div v-if="showCategoryModalOpen" class="modal-mask">
+    <div :showTeste="teste" @modalCategoria="teste = true " v-if="showCategoryModalOpen" class="modal-mask">
       <div class="modal-wrapper">
         <div class="modal-container col-lg-4 col-sm-8">
           <div class="modal-header text-center d-flex col-12 m-auto justify-content-center;">
@@ -76,6 +76,7 @@ export default defineComponent({
     return {
       token_login: Cookie.get('_tcc2_token'),
       disabled: false,
+      teste: false,
       data: {
         author: '',
         name_category: '',

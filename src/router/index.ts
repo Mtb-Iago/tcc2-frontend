@@ -9,7 +9,6 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/login',
     name: 'login',
-    beforeEnter: Guard.authHeader, 
     component: LoginView
   },
   {
@@ -20,7 +19,7 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/posts',
     name: 'posts',
-    beforeEnter: Guard.authHeader,
+    beforeEnter: [Guard.authHeader, Guard.authCategory],
     component: PostsView
   }
 ]
