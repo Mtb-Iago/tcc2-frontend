@@ -3,13 +3,13 @@
     <nav class="col-12 m-auto d-flex">
       <router-link to="/">Categorias</router-link>
       <!-- <router-link to="/posts">Posts</router-link> -->
-      <a v-if="!token_login" id="login" @click="showModal = true">Login</a>
+      <a v-if="!token_login" id="login" @click="showModal = true" ref="teste">Login</a>
       <a v-if="token_login" id="login" @click="logout">Sair</a>
     </nav>
     <Teleport to="body">
-    <!-- use the modal component, pass in the prop -->
-    <ModalLogin :show="showModal" @close="showModal = false " />
-  </Teleport>
+      <!-- use the modal component, pass in the prop -->
+      <ModalLogin :show="showModal" @close="showModal = false " />
+    </Teleport>
   </div>
 </template>
 
@@ -24,24 +24,25 @@ export default defineComponent({
   components: { ModalLogin },
   data() {
     return {
+
       showModal: false,
       token_login: Cookie.get('_tcc2_token'),
     }
   },
-  watch: {
-    logout(token) {
-      console.log(token)
-      this.token_login = ""
-    }
+  mounted() {
+    this.emitter.on('isLogged', (e: any) => {
+      this.token_login = e
+    });
   },
   methods: {
     logout() {
       Cookie.remove('_tcc2_token')
       this.token_login = ""
+      this.emitter.emit('isLogged', false);
       router.push('/')
     }
   }
-  
+
 });
 </script>
 

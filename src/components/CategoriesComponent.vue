@@ -4,12 +4,10 @@
     <div class="d-flex justify-content-end col-10 m-auto align-items-center" id="button_new_category">
       <button class="btn-new-category btn btn-info btn-lg" v-on:click="showModalCategory" :disabled='isDisabled'>Nova Categoria</button>
       <Teleport to="body">
-        <!-- use the modal component, pass in the prop -->
         <ModalCategorie :showCategoryModalOpen="showCategory" @close="showCategory = false " />
       </Teleport>
       <input class="form-control col-2 ml-sm-2" type="text" v-model="search" placeholder="Buscar Categoria..." />
     </div>
-
 
     <div class="hello d-flex col-12 mt-5">
       <div class="col-12 d-flex flex-wrap m-auto justify-content-center align-items-center">
@@ -94,6 +92,11 @@ export default defineComponent({
     }).catch(error => {
       console.log(error);
     });
+  },
+  mounted() {
+    console.log(this.emitter.on('isLogged', (e: any) => {
+      this.token_login = e
+    }));
   },
   methods: {
     async listCategories() {

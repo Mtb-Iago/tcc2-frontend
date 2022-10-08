@@ -72,7 +72,7 @@
   </Transition>
 </template>
 <script lang="ts">
-  import Cookie from 'js-cookie'
+import Cookie from 'js-cookie'
   import { defineComponent } from 'vue'
 
 
@@ -112,6 +112,7 @@ export default defineComponent({
   computed: {
     
   },
+  
   methods: {
     async login() {
       const data = {
@@ -156,7 +157,8 @@ export default defineComponent({
         this.request.request_error = false
         this.request.request_success = true
         this.request.msg_response = "Login efetuado com sucesso..."
-         
+
+        this.emitter.emit('isLogged', true);
       }
       setTimeout(() => {
         this.request.request_error = false
