@@ -61,9 +61,9 @@
   </Transition>
 </template>
 <script lang="ts">
-import router from '@/router';
+import { ResponseApi } from '@/interfaces/CategoriesInterface';
+import categories from '@/services/categories';
 import Cookie from 'js-cookie'
-
 import { defineComponent } from 'vue';
 
 
@@ -94,6 +94,7 @@ export default defineComponent({
   },
   methods: {
     async insert_category() {
+      
       const data = {
         author: this.data.author,
         name_category: this.data.name_category,
@@ -121,9 +122,17 @@ export default defineComponent({
       this.request.data_return = response.data
       this.request.message = response.message
 
+      this.emitter.emit('insertCategoryEvent', (e: any) => {
+        categories.listCategories().then((response: ResponseApi) => {
+            return response
+          }).catch(error => {
+            console.log(error);
+          });
+        
+      });
+
     },
   }
-
 })
 </script>
     

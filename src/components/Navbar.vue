@@ -30,7 +30,7 @@ export default defineComponent({
     }
   },
   mounted() {
-    this.emitter.on('isLogged', (e: any) => {
+    this.emitter.on('isLogged', (e: never) => {
       this.token_login = e
     });
   },

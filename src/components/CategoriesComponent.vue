@@ -94,8 +94,23 @@ export default defineComponent({
     });
   },
   mounted() {
-    console.log(this.emitter.on('isLogged', (e: any) => {
-      this.token_login = e
+    this.emitter.on('insertCategoryEvent', (e: string | undefined) => {
+      if (e) {
+        Categories.listCategories().then((response: ResponseApi) => {
+          this.categories.status = response.status;
+          this.categories.data = response.data;
+          this.categories.message = response.message;
+        }).catch(error => {
+          console.log(error);
+        });
+
+      }
+    });
+    console.log(this.emitter.on('isLogged', (e: string) => {
+      if (e) {
+        console.log(e);
+        this.token_login = e
+      }
     }));
   },
   methods: {
@@ -125,6 +140,7 @@ export default defineComponent({
       this.showCategory = !this.showCategory
     }
   },
+  
   async insert_category() {
       const data = {
         author: this.data.author,
