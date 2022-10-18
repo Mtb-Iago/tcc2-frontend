@@ -34,6 +34,14 @@
     <div class="alert alert-danger col-4 m-auto" role="alert" v-if="!posts.status || !posts.data.length">
       Não há Posts cadastradas...
     </div>
+    <div class="btn-float">
+      <button id="btn-insert-post" type="button" class="float" v-on:click="showModalPost">
+        <i class="far fa-plus"></i>
+      </button>
+      <Teleport to="body">
+        <ModalPost :showPostModalOpen="showPosts" @close="showPosts = false " />
+      </Teleport>
+    </div>
   </div>
 </template>
 
@@ -43,10 +51,12 @@ import Cookie from 'js-cookie'
 import moment from 'moment';
 import Posts from '@/services/posts'
 import { FilterDataPosts, ResponseApi } from '@/interfaces/PostsInterface';
+import ModalPost from '@/components/ModalPost.vue';
 
 export default defineComponent({
   name: 'PostsView',
   components: {
+    ModalPost
   },
   el: '.carousel',
   data() {
@@ -95,46 +105,30 @@ export default defineComponent({
       console.log(error);
     });
   },
+  mounted() {
+    this.emitter.on('insertPostEvent', (e: string | undefined) => {
+      if (e) {
+        Posts.listPosts(this.id_category).then((response: ResponseApi) => {
+
+          this.posts.status = response.status;
+          this.posts.data = response.data;
+          this.posts.message = response.message;
+
+        }).catch(error => {
+          console.log(error);
+        });
+
+      }
+    });
+  },
   methods: {
     dateTime(value: string) {
       return moment(value).format("DD-MM-YYYY H:m:s");
     },
-    showModalCategory() {
+    showModalPost() {
       this.showPosts = !this.showPosts
     }
-  },
-  // async insert_category() {
-  //   const data = {
-  //     author: this.data.author,
-  //     name_category: this.data.name_category,
-  //     description: this.data.description,
-  //   };
-
-  //   const response = await fetch(
-  //     "http://localhost:8001/api/category/insert-category/",
-  //     {
-  //       method: 'POST', // *GET, POST, PUT, DELETE, etc.
-  //       mode: 'cors', // no-cors, *cors, same-origin
-  //       headers: {
-  //         "Authorization": `Bearer ${this.token_login}`,
-  //         'Content-Type': 'application/json'
-  //       },
-  //       body: JSON.stringify(data) // body data type must match "Content-Type" header
-  //     }
-  //   ).then((res) => {
-  //     return res.json()
-  //   }).catch((error) => {
-  //     console.log(error.data.message);
-  //   })
-
-  //   this.request.status_register = response.status
-  //   this.request.data_return = response.data
-  //   this.request.message = response.message
-  // },
-
-
-
-
+  }
 });
 </script>
 
@@ -238,5 +232,29 @@ h1 {
 .card:focus::before,
 .card:focus::after {
   transform: scale3d(1, 1, 1);
+}
+
+.float {
+  position: fixed;
+  width: 60px;
+  height: 60px;
+  bottom: 40px;
+  right: 40px;
+  background-color: #17a2b8;
+  color: #FFF;
+  border-radius: 50px;
+  text-align: center;
+  font-size: 30px;
+  box-shadow: 2px 2px 3px #999;
+  z-index: 100;
+}
+
+#btn-insert-post {
+  border: none;
+}
+
+#btn-insert-post:hover {
+  transition: .4s;
+  opacity: 0.5;
 }
 </style>

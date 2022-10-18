@@ -3,7 +3,7 @@ export interface FilterDataPosts{
         tags_post: [],
 }
 export interface ResponseApi {
-    status: null,
+    status: any,
     data: [],
     message: ''
 }
