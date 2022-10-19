@@ -13,7 +13,6 @@ import {fas} from "@fortawesome/free-solid-svg-icons";
 library.add(fas)
 const app = createApp(App)
 app.config.globalProperties.emitter = emitter
-
 app.component('font-awesome-icon', FontAwesomeIcon)
 app.use(router).mount('#app')
 

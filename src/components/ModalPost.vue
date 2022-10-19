@@ -129,7 +129,7 @@ export default defineComponent({
         tag: this.data.tags,
         files: [
           {
-            file: this.data.img
+            file: this.data.img ? this.data.img : ''
           }
         ]
       };
@@ -143,7 +143,7 @@ export default defineComponent({
             "Authorization": `Bearer ${this.token_login}`,
             'Content-Type': 'application/json'
           },
-          body: JSON.stringify(data) // body data type must match "Content-Type" header
+          body: JSON.stringify(data)
         }
       ).then((res) => {
         return res.json()
@@ -163,6 +163,11 @@ export default defineComponent({
       this.request.status_register = response.status
       this.request.data_return = response.data
       this.request.message = response.message
+
+      setTimeout(() => {
+        this.request.message = ''
+        this.data.img ? '' : ''
+      }, 3000);
     },
 
     handleImage(e: any) {

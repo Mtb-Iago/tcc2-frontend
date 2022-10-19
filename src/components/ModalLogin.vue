@@ -32,6 +32,15 @@
                     placeholder="Digite sua senha..">
                 </div>
 
+                <div class="form-group" v-if="register">
+                  <label>
+                    <input type="checkbox" id="aceite" name="aceite" :v-model="form.aceite" value="confirma">
+                    Estou ciente que meus dados podem ser usados de acordo com normas da LGPD <a target="__blank"
+                      href="http://www.planalto.gov.br/ccivil_03/_ato2015-2018/2018/lei/l13709.htm"><i>Saiba
+                        Mais</i></a>.
+                  </label>
+                </div>
+
                 <div class="form-group text-center" v-if="request.request_error || request.request_success ">
                   <div class="alert alert-danger" role="alert" v-if="request.request_error">
                     {{request.msg_response}}
@@ -41,13 +50,16 @@
                   </div>
                 </div>
 
+                <div class="alert alert-danger" role="alert" v-if="message_lgpd_no_checked">
+                    {{message_lgpd_no_checked}}
+                  </div>
               </div>
             </div>
             <div class="modal-footer">
               <slot name="footer">
 
                 <div class="m-auto text-center" v-if="register">
-                  <button v-on:click="login" class="btn btn-success">REGISTRAR
+                  <button v-on:click="register_user" class="btn btn-success">REGISTRAR
                     <font-awesome-icon icon="fa-solid fa-right-to-bracket" />
                   </button>
                   <br>
@@ -73,17 +85,17 @@
 </template>
 <script lang="ts">
 import Cookie from 'js-cookie'
-  import { defineComponent } from 'vue'
+import { defineComponent } from 'vue'
 
 
 
 interface ResponseApi {
-    data: {
-      token: string
-    },
-    message: string,
-    http_code:number,
-    status: boolean
+  data: {
+    token: string
+  },
+  message: string,
+  http_code: number,
+  status: boolean
 }
 
 export default defineComponent({
@@ -96,11 +108,14 @@ export default defineComponent({
     return {
       register: false,
       login_register: 'LOGIN',
+     
+      message_lgpd_no_checked: '',
       form: {
         email: '',
         name: '',
         password: '',
-      },
+        aceite: '',
+       },
       request: {
         request_error: false,
         request_success: false,
@@ -110,9 +125,9 @@ export default defineComponent({
     }
   },
   computed: {
-    
+
   },
-  
+
   methods: {
     async login() {
       const data = {
@@ -136,8 +151,8 @@ export default defineComponent({
       }).catch((error) => {
         console.log(error.data.message);
       })
-      
-      this.send_response(response)
+
+      this.send_response(false, response)
     },
     async link_register_or_login() {
       this.register = !this.register
@@ -147,28 +162,70 @@ export default defineComponent({
         this.login_register = 'LOGIN'
       }
     },
-    send_response(response: ResponseApi) {
+    send_response(register:any, response: ResponseApi) {
 
-      if(!response.status) {
+      if (!response.status) {
         this.request.msg_response = response.message
         this.request.request_error = true
-       
+
       } else {
         this.request.request_error = false
         this.request.request_success = true
-        this.request.msg_response = "Login efetuado com sucesso..."
+        
+        this.request.msg_response = response.message
+        
+        if (!response.message && this.request.request_success) {
+          this.request.msg_response = "Login efetuado com sucesso..."
+        }
 
-        this.emitter.emit('isLogged', true);
+        if (!register) {
+          this.emitter.emit('isLogged', true);
+        }
       }
       setTimeout(() => {
         this.request.request_error = false
         this.request.request_success = false
         this.request.msg_response = ""
-        Cookie.set('_tcc2_token', response.data.token)
-        this.$emit('close')
-        
+        if (!register) {
+          Cookie.set('_tcc2_token', response.data.token)
+          this.$emit('close')
+        }
       }, 1000);
-    }
+    },
+    async register_user() {
+      const data = {
+        email: this.form.email,
+        name: this.form.name,
+        password: this.form.password,
+        aceite: this.form.aceite
+      };
+      
+      if (!data.email || !data.name || !data.password) { 
+        this.message_lgpd_no_checked = "Por favor Preencha todos os campos..."
+        setInterval(() => {
+          this.message_lgpd_no_checked = ''
+        }, 5000);
+        
+        return 
+      }
+      const response = await fetch(
+        "http://localhost:8001/api/user/insert-user/",
+        {
+          method: 'POST',
+          mode: 'cors',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(data)
+        }
+      ).then((res) => {
+        return res.json()
+      }).catch((error) => {
+        console.log(error.data.message);
+      })
+  
+      this.send_response(true, response)
+    },
   }
 })
 </script>

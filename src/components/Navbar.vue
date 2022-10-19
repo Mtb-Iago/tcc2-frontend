@@ -1,6 +1,6 @@
 <template>
   <div class="nav col-12 d-flex bg-#000">
-    <nav class="col-12 m-auto d-flex">
+    <nav class="navbar navbar-expand-lg col-12 m-auto d-flex p-3">
       <router-link to="/">Categorias</router-link>
       <!-- <router-link to="/posts">Posts</router-link> -->
       <a v-if="!token_login" id="login" @click="showModal = true" ref="teste">Login</a>

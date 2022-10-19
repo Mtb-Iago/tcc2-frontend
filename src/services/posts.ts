@@ -26,18 +26,24 @@ export default {
 
     return response
   },
-  async insertPosts() {
+  async insertPosts(id_post: number, new_status_post: boolean) {
 
     const token = Auth.get_token()
+
+    const data = {
+      "id_post": id_post,
+      "accept_post": new_status_post ? true : 0
+    }
     const response = await fetch(
-      "http://localhost:8001/api/posts/insert-posts/",
+      "http://localhost:8001/api/posts/update-status-post/",
       {
-        method: 'POST', // *GET, POST, PUT, DELETE, etc.
-        mode: 'cors', // no-cors, *cors, same-origin
+        method: 'POST', 
+        mode: 'cors',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
-        }
+        },
+        body: JSON.stringify(data)
       }
     ).then((res) => {
       return res.json()

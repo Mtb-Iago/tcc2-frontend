@@ -2,11 +2,18 @@
   <h6 class="mb-5 text-muted">{{ msg }}</h6>
   <div class="content mb-5 col-12">
     <div class="d-flex justify-content-end col-10 m-auto align-items-center" id="button_new_category">
-      <button class="btn-new-category btn btn-info btn-lg" v-on:click="showModalCategory" :disabled='isDisabled'>Nova Categoria</button>
+      <div class="btn-float">
+        <button id="btn-insert-post" type="button" class="float btn-new-category" v-on:click="showModalCategory"
+          :disabled='isDisabled'>
+          <i class="far fa-plus"></i>
+        </button>
+      </div>
       <Teleport to="body">
         <ModalCategorie :showCategoryModalOpen="showCategory" @close="showCategory = false " />
       </Teleport>
-      <input class="form-control col-2 ml-sm-2" type="text" v-model="search" placeholder="Buscar Categoria..." />
+    </div>
+    <div class="d-flex justify-content-end col-10 m-auto align-items-center">
+      <input id="search-input" class="form-control col-4 text-center d-flex m-auto justify-content-center align-items-center" type="text" v-model="search" placeholder="Buscar Categoria..." />
     </div>
 
     <div class="hello d-flex col-12 mt-5">
@@ -14,8 +21,9 @@
         <div class="row d-flex justify-content-center mb-5" v-for="(categorie, index) in filteredItems" :key="index">
           <div class="col-md-10 col-sm-6 item">
             <div class="card item-card card-block">
-              <h4 class="card-title text-right" >
-                <router-link :to="{ name: 'posts', query:{categoria: categorie['id_category']}}"><i class="fa-solid fa-arrow-right"></i></router-link>
+              <h4 class="card-title text-right">
+                <router-link :to="{ name: 'posts', query:{categoria: categorie['id_category']}}"><i
+                    class="fa-solid fa-arrow-right"></i></router-link>
               </h4>
               <h2 class="text-bolder">{{categorie['name_category']}}</h2>
               <h5 class="item-card-title mt-3 mb-3">{{categorie['author']}} • Owner</h5>
@@ -79,10 +87,10 @@ export default defineComponent({
         return val.name_category.toLowerCase().includes(this.search.toLowerCase());
       });
     },
-    isDisabled(){
-      return !this.token_login ? true : false 
+    isDisabled() {
+      return !this.token_login ? true : false
     }
-    
+
   },
   created() {
     Categories.listCategories().then((response: ResponseApi) => {
@@ -106,12 +114,9 @@ export default defineComponent({
 
       }
     });
-    console.log(this.emitter.on('isLogged', (e: string) => {
-      if (e) {
-        console.log(e);
+    this.emitter.on('isLogged', (e: string) => {
         this.token_login = e
-      }
-    }));
+    });
   },
   methods: {
     async listCategories() {
@@ -140,35 +145,35 @@ export default defineComponent({
       this.showCategory = !this.showCategory
     }
   },
-  
+
   async insert_category() {
-      const data = {
-        author: this.data.author,
-        name_category: this.data.name_category,
-        description: this.data.description,
-      };
+    const data = {
+      author: this.data.author,
+      name_category: this.data.name_category,
+      description: this.data.description,
+    };
 
-      const response = await fetch(
-        "http://localhost:8001/api/category/insert-category/",
-        {
-          method: 'POST', // *GET, POST, PUT, DELETE, etc.
-          mode: 'cors', // no-cors, *cors, same-origin
-          headers: {
-            "Authorization": `Bearer ${this.token_login}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(data) // body data type must match "Content-Type" header
-        }
-      ).then((res) => {
-        return res.json()
-      }).catch((error) => {
-        console.log(error.data.message);
-      })
+    const response = await fetch(
+      "http://localhost:8001/api/category/insert-category/",
+      {
+        method: 'POST', // *GET, POST, PUT, DELETE, etc.
+        mode: 'cors', // no-cors, *cors, same-origin
+        headers: {
+          "Authorization": `Bearer ${this.token_login}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data) // body data type must match "Content-Type" header
+      }
+    ).then((res) => {
+      return res.json()
+    }).catch((error) => {
+      console.log(error.data.message);
+    })
 
-      this.request.status_register = response.status
-      this.request.data_return = response.data
-      this.request.message = response.message
-    },
+    this.request.status_register = response.status
+    this.request.data_return = response.data
+    this.request.message = response.message
+  },
 
 });
 </script>
@@ -248,5 +253,33 @@ export default defineComponent({
 .card:focus::before,
 .card:focus::after {
   transform: scale3d(1, 1, 1);
+}
+
+.float {
+  position: fixed;
+  width: 60px;
+  height: 60px;
+  bottom: 40px;
+  right: 40px;
+  background-color: #17a2b8;
+  color: #FFF;
+  border-radius: 50px;
+  text-align: center;
+  font-size: 30px;
+  box-shadow: 2px 2px 3px #999;
+  z-index: 100;
+}
+
+#btn-insert-post {
+  border: none;
+}
+
+#btn-insert-post:hover {
+  transition: .4s;
+  opacity: 0.5;
+}
+#search-input:hover {
+  transition: .4s;
+  opacity: 0.8;
 }
 </style>

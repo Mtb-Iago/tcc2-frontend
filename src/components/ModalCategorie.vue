@@ -94,7 +94,7 @@ export default defineComponent({
   },
   methods: {
     async insert_category() {
-      
+      const token = Cookie.get('_tcc2_token')
       const data = {
         author: this.data.author,
         name_category: this.data.name_category,
@@ -107,7 +107,7 @@ export default defineComponent({
           method: 'POST', // *GET, POST, PUT, DELETE, etc.
           mode: 'cors', // no-cors, *cors, same-origin
           headers: {
-            "Authorization": `Bearer ${this.token_login}`,
+            "Authorization": `Bearer ${token}`,
             'Content-Type': 'application/json'
           },
           body: JSON.stringify(data) // body data type must match "Content-Type" header
