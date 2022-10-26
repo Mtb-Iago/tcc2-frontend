@@ -26,9 +26,9 @@
                     class="fa-solid fa-arrow-right"></i></router-link>
               </h4>
               <h2 class="text-bolder">{{categorie['name_category']}}</h2>
-              <h5 class="item-card-title mt-3 mb-3">{{categorie['author']}} • Owner</h5>
+              <h5 class="item-card-title mt-3 mb-3"><i class="fa-solid fa-user"></i>  {{categorie['author'] ? categorie['author'] : 'Anônimo' }}</h5>
               <p class="card-text">{{categorie['description']}}</p>
-              <small class="text-muted">{{dateTime(categorie['created_at'])}}</small>
+              <small class="text-muted"><i class="fa-solid fa-calendar"></i> {{dateTime(categorie['created_at'])}}</small>
             </div>
           </div>
         </div>
@@ -139,7 +139,8 @@ export default defineComponent({
       return response;
     },
     dateTime(value: string) {
-      return moment(value).format("DD-MM-YYYY H:m:s");
+      moment.locale('pt-br')
+      return moment(value).format("LL");
     },
     showModalCategory() {
       this.showCategory = !this.showCategory
@@ -181,7 +182,7 @@ export default defineComponent({
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
 .content {
-  min-height: 80vh;
+  min-height: 20vh;
 }
 
 .item {
@@ -189,7 +190,6 @@ export default defineComponent({
   padding-left: 5px;
   padding-right: 5px;
 }
-
 .item-card {
   transition: 0.5s;
   cursor: pointer;

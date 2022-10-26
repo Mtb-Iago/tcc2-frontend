@@ -49,7 +49,7 @@
                     {{request.message}}
                   </div>
                   <div class="alert alert-success" role="alert" v-if="request.message && request.status_register">
-                    {{request.message}}
+                    <b>{{request.message}}</b>
                   </div>
                 </div>
 
@@ -167,7 +167,7 @@ export default defineComponent({
       setTimeout(() => {
         this.request.message = ''
         this.data.img ? '' : ''
-      }, 3000);
+      }, 12000);
     },
 
     handleImage(e: any) {

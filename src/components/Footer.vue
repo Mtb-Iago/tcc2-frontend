@@ -2,8 +2,8 @@
   <div class="footer">
     <footer>
       <div class="mt-5">
-        <article>Sistema desenvolvido como atividade de tcc pelo discente <b>Iago Oliveira</b> com a orientação do professor <b>Alexandro Silva</b> para a graduação no curso de bacharelado em sistemas de informação pelo Instituto Federal da Bahia.
-          <br><small>Outubro/2022</small>
+        <article><small>Sistema desenvolvido como atividade de Trabalho de Conclusão de Curso pelo discente <b>Iago da Silva Oliveira</b> com a orientação do professor <b>Alexandro dos Santos Silva</b> para o curso de Bacharelado em Sistemas de Informação pelo Instituto Federal da Bahia.
+          </small>
         </article>
       </div>
       <div class="linksFooter">

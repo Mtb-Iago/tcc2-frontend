@@ -3,7 +3,7 @@
     <div class="img col-3 d-flex m-auto justify-content-center">
       <img width="400"  height="400" alt="Vue logo" src="../assets/logo.png">
     </div>
-    <h1>CATEGORIAS</h1>
+    <h1><i class="fa-solid fa-blog"></i> CATEGORIAS</h1>
     <CategoriesComponent msg="Artrose e qualidade de vida? Claro que é possível!"/>
 
     
@@ -33,5 +33,8 @@ export default defineComponent({
 }  
 h1 {
   margin-top: -100px;
+}
+.img {
+  margin-top: -100px !important;
 }
 </style>

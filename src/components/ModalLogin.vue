@@ -162,7 +162,8 @@ export default defineComponent({
         this.login_register = 'LOGIN'
       }
     },
-    send_response(register:any, response: ResponseApi) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    send_response(register: any, response: ResponseApi) {
 
       if (!response.status) {
         this.request.msg_response = response.message

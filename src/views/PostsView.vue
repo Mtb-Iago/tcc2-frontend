@@ -3,7 +3,7 @@
     <div class="img col-3 d-flex m-auto justify-content-center">
       <img width="400" height="400" alt="Vue logo" src="../assets/logo.png">
     </div>
-    <h1>POSTS</h1>
+    <h1><i class="fa-solid fa-blog"></i> {{title_posts_view}}</h1>
     <input class="form-control col-4 text-center d-flex justify-content-center m-auto searchButton" type="text"
       v-model="search" placeholder="Buscar Posts..." />
     <div class="hello d-flex col-12 mt-5 flex-column">
@@ -13,11 +13,11 @@
             <div class="card item-card card-block">
               <div class="d-flex justify-content-between">
                 <h2 :class="
-                   role_permision == 'admin' 
-                        ? posts['accept_post'] == 1 ? 'text-success ' : 
-                        'text-danger '
-                       : ' text-black' + 
-                        ' text-left text-bolder'">{{posts['title_post']}}</h2>
+                                   role_permision == 'admin' 
+                ? posts['accept_post'] == 1 ? 'text-success text-left' : 
+                'text-danger text-left '
+                                       : ' text-black' + 
+                ' text-left text-bolder'">{{posts['title_post']}}</h2>
                 <div class="d-flex mb-auto mt-auto" v-if="role_permision == 'admin'">
                   <button class="btn btn-sm btn-success mr-2" type="button"
                     v-on:click="updateStatusPost('accept', posts['id_post'])"><i
@@ -27,7 +27,7 @@
                       class="fa-solid fa-lock"></i></button>
                 </div>
               </div>
-              <p class="card-text">{{posts['post']}}</p>
+              <article class="mb-3 card-text line-clamp line-clamp--four">{{limitedCharInPost(posts['post'])}} <a class="text-right" v-on:click="showModalfinPost(posts)"> Leia mais...</a></article>
 
               <div class="d-flex justify-content-center m-auto" id="imagesUrl" v-if="posts['url_archives']">
                 <img width="300" :src="posts['url_archives'][0]['url_photos']" />
@@ -38,12 +38,13 @@
               <hr>
               <div id="footerCard">
                 <div class="d-flex justify-content-between align-items-center">
-                  <h5 class="item-card-title mt-3 mb-3">AUTOR: {{posts['name_user']}}</h5>
-                  <small class="text-muted">{{dateTime(posts['created_at'])}}</small>
+                  <h5 class="item-card-title mt-3 mb-3"><i class="fa-solid fa-user"></i> {{posts['name_user']}}</h5>
+                  <small class="text-muted"><i class="fa-solid fa-calendar"></i>
+                    {{dateTime(posts['created_at'])}}</small>
                 </div>
-                <div class="text-center">
-                  <small class="text-center text-muted">TAGS: [{{ posts['tags_post'][posts['tags_post']['length'] -
-                  1]['tag']}}]</small>
+                <div class="text-right">
+                  <small class="text-center text-muted tags" v-if="renderTags(posts['tags_post'])"><i class="fa-solid fa-tags"></i> {{renderTags(posts['tags_post'])}}</small>
+                  <!-- <small class="text-center text-muted">TAGS: [{{ posts['tags_post'][posts['tags_post']['length']] ? posts['tags_post'][posts['tags_post']['length'] - 1]['tag'] : '' }}]</small> -->
                 </div>
               </div>
             </div>
@@ -54,7 +55,7 @@
         Não há Posts cadastradas...
       </div>
     </div>
-    
+
     <div class="btn-float">
       <button id="btn-insert-post" type="button" class="float" v-on:click="showModalPost">
         <i class="far fa-plus"></i>
@@ -63,6 +64,9 @@
         <ModalPost :showPostModalOpen="showPosts" @close="showPosts = false " />
       </Teleport>
     </div>
+    <Teleport to="body">
+      <ModalViewFindPost :ModalViewFindPost="showViewFindPost" @close="showViewFindPost = false " />
+    </Teleport>
   </div>
 </template>
 
@@ -70,21 +74,25 @@
 import { defineComponent } from 'vue';
 import Cookie from 'js-cookie'
 import moment from 'moment';
+import 'moment/locale/pt-br'
 import Posts from '@/services/posts'
 import { FilterDataPosts, ResponseApi } from '@/interfaces/PostsInterface';
 import ModalPost from '@/components/ModalPost.vue';
+import ModalViewFindPost from '@/components/ModalViewFindPost.vue';
 import jwt_decode from 'jwt-decode';
 
 export default defineComponent({
   name: 'PostsView',
   components: {
-    ModalPost
+    ModalPost,
+    ModalViewFindPost
   },
   el: '.carousel',
   data() {
 
     return {
       showPosts: false,
+      showViewFindPost: false,
       disabled: false,
       token_login: Cookie.get('_tcc2_token'),
       id_category: this.$route.query.categoria,
@@ -92,6 +100,7 @@ export default defineComponent({
       role_permision: '',
       update_status: false,
       message_update: '',
+      title_posts_view: 'Posts',
       posts: {
         status: null,
         data: [],
@@ -127,9 +136,10 @@ export default defineComponent({
       this.posts.status = response.status;
       this.posts.data = response.data;
 
+      this.title_posts_view = 'Posts Sobre ' + this.posts.data[0]['name_category']
       setTimeout(() => {
         this.posts.message = response.message;
-        
+
       }, 3000);
 
     }).catch(error => {
@@ -156,10 +166,15 @@ export default defineComponent({
   },
   methods: {
     dateTime(value: string) {
-      return moment(value).format("DD-MM-YYYY H:m:s");
+      moment.locale('pt-br')
+      return moment(value).format("LL");
     },
     showModalPost() {
       this.showPosts = !this.showPosts
+    },
+    showModalfinPost(posts: any) {
+      this.showViewFindPost = !this.showViewFindPost
+      this.viewTextPostComplete(posts)
     },
     init() {
       const pay = this.token_login
@@ -180,17 +195,17 @@ export default defineComponent({
       }
       if (e == 'not_accept') {
         new_status_post = false
-      }  
-      
+      }
+
       this.update_status = true
- 
+
       Posts.insertPosts(id_post, new_status_post).then((response: ResponseApi) => {
 
         this.posts.status = response.status;
         this.posts.data = response.data;
         this.posts.message = response.message;
         this.message_update = response.message
-      
+
 
         this.emitter.emit('insertPostEvent', (e: any) => {
           Posts.listPosts().then((response: ResponseApi) => {
@@ -206,6 +221,19 @@ export default defineComponent({
       setTimeout(() => {
         this.update_status = false
       }, 5000);
+    },
+    limitedCharInPost(post: string){
+      return post.substring(0,207)
+    },
+    viewTextPostComplete(posts: any){
+        this.emitter.emit('finPostView', posts)
+        return posts.id_post
+    },
+    renderTags(tags: any){
+      if (tags) return tags[tags.length -1]['tag']
+      
+      return ''
+      
     }
   }
 });
@@ -355,5 +383,21 @@ h1 {
   margin-top: auto;
   height: 100px;
   max-height: 100px;
+}
+
+.line-clamp {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+}
+
+.line-clamp--four {
+  -webkit-line-clamp: 4;
+}
+.tags {
+  font-size: 08pt;
 }
 </style>

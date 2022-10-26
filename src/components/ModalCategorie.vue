@@ -122,7 +122,7 @@ export default defineComponent({
       this.request.data_return = response.data
       this.request.message = response.message
 
-      this.emitter.emit('insertCategoryEvent', (e: any) => {
+      this.emitter.emit('insertCategoryEvent', () => {
         categories.listCategories().then((response: ResponseApi) => {
             return response
           }).catch(error => {

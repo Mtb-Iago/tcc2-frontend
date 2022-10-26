@@ -48,6 +48,7 @@ export default defineComponent({
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
+
 .nav {
   background-color: #17a2b8;
   justify-content: end;
