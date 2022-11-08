@@ -4,9 +4,10 @@ services:
     build: .
     container_name: tcc2-frontend
     volumes:
-       - .:/tcc2-frontend
+      - .:/tcc2-frontend
     working_dir: /tcc2-frontend
     ports:
     - 8080:8080
-    command: ['yarn', 'serve']
+    command: >
+      sh -c "yarn && yarn serve"
     
