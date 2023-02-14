@@ -14,7 +14,7 @@
 
                 <div class="form-group">
                   <label for="auhtor">Autor da Descrição</label>
-                  <input type="text" class="form-control" id="auhtor" v-model="data.author" aria-describedby="auhtor"
+                  <input type="text" class="form-control" id="auhtor" disabled :value="data.author" aria-describedby="auhtor"
                     placeholder="Digite seu nome..">
                   <small id="auhtor" class="form-text text-muted">Nunca compartilharemos seu e-mail com mais
                     ninguém.</small>
@@ -64,6 +64,7 @@
 import { ResponseApi } from '@/interfaces/CategoriesInterface';
 import categories from '@/services/categories';
 import Cookie from 'js-cookie'
+import jwt_decode from 'jwt-decode';
 import { defineComponent } from 'vue';
 
 
@@ -89,10 +90,19 @@ export default defineComponent({
       },
     }
   },
-  computed: {
-
+  mounted() {
+    this.init()
   },
   methods: {
+    init() {
+      const pay = this.token_login
+      var payload: any
+      if (pay) {
+        payload = jwt_decode(pay)
+        this.data.author = payload.name.toUpperCase()
+        return payload
+      }
+    },
     async insert_category() {
       const token = Cookie.get('_tcc2_token')
       const data = {
